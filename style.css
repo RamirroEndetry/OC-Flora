@@ -275,13 +275,13 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round
 .kbd__target { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.8; text-transform: none; letter-spacing: 0; font-size: 0.85rem; }
 .kbd__close { border: 1px solid rgba(255, 255, 255, 0.35); background: transparent; color: #fff; border-radius: 999px; width: 38px; height: 38px; cursor: pointer; font-size: 1rem; }
 .kbd__row { max-width: 1100px; margin: 0 auto 8px; display: flex; justify-content: center; gap: 8px; }
-.kbd__key { flex: 1 1 0; max-width: 92px; min-width: 0; height: 58px; border: 0; border-radius: 12px; background: #fff; color: var(--ink); font: 600 1.35rem var(--font); cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: transform 0.05s ease, background 0.1s ease; }
-.kbd__key:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); background: var(--tint2, #e3dde8); }
+.kbd__key { flex: 1 1 0; max-width: 92px; min-width: 0; height: 58px; border: 0; border-radius: 12px; background: #fff; color: #140f2c; font: 600 1.35rem var(--font); cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: transform 0.05s ease, background 0.1s ease; }
+.kbd__key:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); background: #e3dde8; color: #140f2c; }
 .kbd__key--wide { flex: 1.6 1 0; max-width: 150px; }
 .kbd__key--fn { background: rgba(255, 255, 255, 0.16); color: #fff; font-size: 1.1rem; }
 .kbd__key--fn:active { background: rgba(255, 255, 255, 0.3); }
 .kbd__key--fn[aria-pressed="true"] { background: var(--gold); color: var(--wine-dark); }
-.kbd__key--space { flex: 6 1 0; max-width: 620px; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.kbd__key--space { flex: 6 1 0; max-width: 620px; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: #6d6677; }
 .kbd__key--go { background: var(--gold); color: var(--wine-dark); font-size: 1.05rem; }
 .kbd__key--go:active { background: #e3b240; }
 body.kbd-open { padding-bottom: 400px; }
