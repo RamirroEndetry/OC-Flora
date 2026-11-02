@@ -4,6 +4,8 @@ Webová aplikace pro zákazníky obchodního centra **OC Flora** (Vinohradská 2
 
 Neoficiální prototyp – data pocházejí z veřejného webu https://www.ocflora.cz/ (stav v `data.js` → `meta.updated`).
 
+**Živá verze:** https://ramirroendetry.github.io/OC-Flora/ (GitHub Pages z větve `main`, kořen repozitáře; každý push do `main` web během minuty aktualizuje). Repozitář: https://github.com/RamirroEndetry/OC-Flora
+
 ## Co zákazník dostane
 
 | Obrazovka | Co řeší |
