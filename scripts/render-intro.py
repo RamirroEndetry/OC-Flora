@@ -187,17 +187,39 @@ def flower_sprite(size, petal_scales, core=True, color=WHITE, core_color=WINE, d
     if soft: im = im.filter(ImageFilter.GaussianBlur(soft))
     return to_sprite(im)
 
-LOGO_SIZE = 560 if PORTRAIT else 420
-LOGO = flower_sprite(LOGO_SIZE, [1] * 5)
-LOGO_GLOW, LOGO_GLOW_PAD = glow_of(LOGO, 40, GOLD * 0.5 + ROSE * 0.3)
-LOGO_SMALL = flower_sprite(72, [1] * 5)
-BIG_FLOWER = Image.new('L', (1600, 1600), 0)
-_d = ImageDraw.Draw(BIG_FLOWER); _k = 1600 / 128
-for px, py in PETALS: _d.ellipse([(px - 19) * _k, (py - 19) * _k, (px + 19) * _k, (py + 19) * _k], outline=255, width=3)
-BIG_FLOWER = BIG_FLOWER.filter(ImageFilter.GaussianBlur(1.5))
+# ---------- originální logo OC Flora (assets/OC Flora - Logo/logo-oc-flora.png) ----------
+LOGO_SRC = ROOT / 'assets' / 'OC Flora - Logo' / 'logo-oc-flora.png'
+def load_logo():
+    """Rozdělí vodorovné logo na znak (vlevo) a nápis FLORA (vpravo) podle největší mezery v alfa kanálu."""
+    im = Image.open(LOGO_SRC).convert('RGBA')
+    a = np.asarray(im.getchannel('A'))
+    cols = np.where(a.max(axis=0) > 20)[0]
+    gaps = np.diff(cols); i = int(gaps.argmax()); split = int((cols[i] + cols[i + 1]) // 2)
+    mark = im.crop((0, 0, split, im.height)); mark = mark.crop(mark.getbbox())
+    word = im.crop((split, 0, im.width, im.height)); word = word.crop(word.getbbox())
+    return mark, word
 
-def big_flower(angle, op):
-    r = np.asarray(BIG_FLOWER.rotate(angle, resample=Image.BILINEAR), np.float32)[..., None] / 255
+def white_logo(im, width=None, height=None):
+    """Monochromatické logo přebarví na bílou (alfa zůstává) a změní velikost."""
+    if width: height = round(im.height * width / im.width)
+    else: width = round(im.width * height / im.height)
+    im = im.resize((max(1, width), max(1, height)), Image.LANCZOS)
+    out = Image.new('RGBA', im.size, (255, 255, 255, 255)); out.putalpha(im.getchannel('A'))
+    return out
+
+_MARK_SRC, _WORD_SRC = load_logo()
+MARK_H = 440 if PORTRAIT else 360
+MARK_IMG = white_logo(_MARK_SRC, height=MARK_H)
+MARK = to_sprite(MARK_IMG)
+WORD_IMG = white_logo(_WORD_SRC, width=int(W * (0.78 if PORTRAIT else 0.44)))
+WORD = to_sprite(WORD_IMG)
+MARK_GLOW, MARK_GLOW_PAD = glow_of(MARK, 40, GOLD * 0.5 + ROSE * 0.3)
+LOGO_SIZE = MARK_H  # kompatibilita se zbytkem skriptu
+BIG_MARK = white_logo(_MARK_SRC, height=1300).getchannel('A').filter(ImageFilter.GaussianBlur(6))
+_pad = Image.new('L', (1600, 1600), 0); _pad.paste(BIG_MARK, ((1600 - BIG_MARK.width) // 2, (1600 - BIG_MARK.height) // 2)); BIG_MARK = _pad
+
+def big_mark(angle, op):
+    r = np.asarray(BIG_MARK.rotate(angle, resample=Image.BILINEAR), np.float32)[..., None] / 255
     return np.concatenate([r * (ROSE * 0.9) * op, r * 0], axis=2)
 
 # ---------- texty ----------
@@ -225,7 +247,7 @@ if PORTRAIT:
     T['fun_s'] = [sub('Cinema City  ·  8 sálů'), sub('Max Fitness  ·  2 500 m²  ·  od 6:00')]
     T['park_h'] = [headline('1 HODINA', HL), headline('PARKOVÁNÍ', HL), headline('ZDARMA', HL)]
     T['park_s'] = [sub('500+ míst  ·  vjezd z Jičínské'), sub('večer a o víkendu 3 hodiny zdarma')]
-    T['outro_h'] = [headline('VÍTEJTE', 150), headline('NA FLOŘE', 150)]
+    T['outro_h'] = [headline('VÍTEJTE', 118)]
 else:
     T['shops_h'] = [headline('127 OBCHODŮ A SLUŽEB', HL)]
     T['shops_s'] = [sub('pod jednou střechou  ·  Po–So 9:00–21:00  ·  Ne 10:00–21:00')]
@@ -235,7 +257,7 @@ else:
     T['fun_s'] = [sub('Cinema City  ·  8 sálů  ·  4. podlaží      Max Fitness  ·  2 500 m²  ·  5. podlaží')]
     T['park_h'] = [headline('1 HODINA PARKOVÁNÍ ZDARMA', HL)]
     T['park_s'] = [sub('500+ míst  ·  vjezd z Jičínské  ·  večer a o víkendu 3 hodiny zdarma')]
-    T['outro_h'] = [headline('VÍTEJTE NA FLOŘE', 150)]
+    T['outro_h'] = [headline('VÍTEJTE', 118)]
 TRAMS = [text_sprite(n, 64, col(WINE_DARK), 'Bold') for n in ('10', '11', '13', '16')]
 T_TRAM_EB = eyebrow('TRAMVAJE PŘÍMO U CENTRA', CREAM * 0.9, 26)
 CHIP_TXT = [text_sprite(s, 30, col(WINE_DARK), 'SemiBold', spacing=3) for s in ('ASIE', 'ČESKÁ KUCHYNĚ', 'KÁVA', 'SLADKÉ', 'FAST FOOD', 'ZDRAVĚ')]
@@ -280,7 +302,7 @@ def backdrop(f, t):
         px = (x + math.sin(t * 0.13 + ph) * 90) % (W + 400) - 200
         py = (y - t * speed) % (H + 400) - 200
         add(f, spr, px - spr.shape[1] / 2, py - spr.shape[0] / 2, op * (0.8 + 0.2 * math.sin(t * 0.9 + ph)))
-    add(f, big_flower(t * 2.5, 0.16), W * (0.72 if not PORTRAIT else 0.5) - 800, H * 0.5 - 800 + math.sin(t * 0.3) * 20)
+    add(f, big_mark(t * 2.5, 0.045), W * (0.72 if not PORTRAIT else 0.5) - 800, H * 0.5 - 800 + math.sin(t * 0.3) * 20)
     for x, y, z in SPARK:
         px = (x + math.sin(t * 0.5 + y) * 25) % W; py = (y - t * 18 * z) % H
         add(f, DOTS[0 if z < 0.7 else 1], px, py, 0.35 * z)
@@ -343,35 +365,41 @@ def draw_block(f, lt, eb, heads, subs, y, t0=0.2, cx=None, align='center'):
 
 def scene_intro(f, t):
     lt = t
-    cx, cy = W / 2, (H * 0.40 if PORTRAIT else H * 0.40)
-    # paprsky lístků – každý rozkvete zvlášť
-    scales = [out_back(prog(lt, 0.35 + i * 0.13, 1.0 + i * 0.13), 1.6) for i in range(5)]
-    core_p = prog(lt, 0.95, 1.4)
-    size = LOGO_SIZE
-    spr = flower_sprite(size, scales, core=core_p > 0, core_color=WINE_DARK + (WINE - WINE_DARK) * core_p, dot=GOLD * core_p + WINE * (1 - core_p))
-    if lt > 1.3: add(f, LOGO_GLOW, cx - size / 2 - LOGO_GLOW_PAD, cy - size / 2 - LOGO_GLOW_PAD, (0.55 + 0.2 * math.sin(lt * 2)) * prog(lt, 1.3, 2.0))
-    blit(f, spr, cx - size / 2, cy - size / 2)
-    # odlesk přes květ
-    gp = prog(lt, 1.9, 2.7)
-    if 0 < gp < 1:
-        band = Image.new('L', (size, size), 0); d = ImageDraw.Draw(band)
-        bx = -200 + gp * (size + 400)
-        d.polygon([(bx, 0), (bx + 70, 0), (bx - 90, size), (bx - 160, size)], fill=255)
-        band = np.asarray(band.filter(ImageFilter.GaussianBlur(12)), np.float32) / 255
-        g = (band * spr[..., 3])[..., None]
-        x0, y0 = int(cx - size / 2), int(cy - size / 2)
-        f[y0:y0 + size, x0:x0 + size] += g * (GOLD * 0.5 + WHITE * 0.3)
-    # název
-    by = cy + size / 2 + (40 if PORTRAIT else 30)
-    a = out_expo(prog(lt, 1.2, 2.0))
-    center_blit(f, T['brand'], by, 1.0, a, (1 - a) * 30)
-    e = prog(lt, 1.9, 2.6)
+    cx, cy = W / 2, (H * 0.34 if PORTRAIT else H * 0.37)
+    # znak loga najíždí s otočením a mírným přestřelením
+    e = out_back(prog(lt, 0.3, 1.3), 1.1)
     if e > 0:
-        ln = int((T['brand'].shape[1] * 0.9) * out_expo(e))
-        f[int(by) + T['brand'].shape[0] + 26:int(by) + T['brand'].shape[0] + 28, int(cx - ln / 2):int(cx + ln / 2)] += GOLD * 0.9
-        center_blit(f, T['eyebrow'], by + T['brand'].shape[0] + 48, e, 1.0, (1 - out_cubic(e)) * 14)
-    fl = 1 - prog(lt, 1.0, 1.5)
-    if 0.95 < lt: f += (GOLD * 0.35 + WHITE * 0.25) * max(0, fl) ** 2 * 0.6
+        sc = 0.3 + 0.7 * e; ang = (1 - e) * -50
+        if abs(e - 1) < 0.002: spr = MARK
+        else:
+            im = MARK_IMG.rotate(ang, resample=Image.BICUBIC, expand=True)
+            im = im.resize((max(1, int(im.width * sc)), max(1, int(im.height * sc))), Image.BILINEAR)
+            spr = to_sprite(im)
+        if lt > 1.1: add(f, MARK_GLOW, cx - MARK.shape[1] / 2 - MARK_GLOW_PAD, cy - MARK.shape[0] / 2 - MARK_GLOW_PAD, (0.55 + 0.2 * math.sin(lt * 2)) * prog(lt, 1.1, 1.9))
+        blit(f, spr, cx - spr.shape[1] / 2, cy - spr.shape[0] / 2, prog(lt, 0.3, 0.7))
+        # odlesk přes znak
+        gp = prog(lt, 1.9, 2.7)
+        if 0 < gp < 1 and spr is MARK:
+            mh, mw = MARK.shape[:2]
+            band = Image.new('L', (mw, mh), 0); d = ImageDraw.Draw(band)
+            bx = -200 + gp * (mw + 400)
+            d.polygon([(bx, 0), (bx + 70, 0), (bx - 90, mh), (bx - 160, mh)], fill=255)
+            band = np.asarray(band.filter(ImageFilter.GaussianBlur(12)), np.float32) / 255
+            g = (band * MARK[..., 3])[..., None]
+            x0, y0 = int(cx - mw / 2), int(cy - mh / 2)
+            f[y0:y0 + mh, x0:x0 + mw] += g * (GOLD * 0.5 + WHITE * 0.3)
+    # nápis FLORA (originál) se odkrývá zleva doprava
+    by = cy + MARK.shape[0] / 2 + (56 if PORTRAIT else 44)
+    a = out_expo(prog(lt, 1.2, 2.0))
+    center_blit(f, WORD, by, 1.0, a, (1 - a) * 30)
+    e2 = prog(lt, 1.9, 2.6)
+    if e2 > 0:
+        ln = int((WORD.shape[1] * 0.9) * out_expo(e2))
+        yl = int(by) + WORD.shape[0] + 30
+        f[yl:yl + 2, int(cx - ln / 2):int(cx + ln / 2)] += GOLD * 0.9
+        center_blit(f, T['eyebrow'], by + WORD.shape[0] + 52, e2, 1.0, (1 - out_cubic(e2)) * 14)
+    fl = 1 - prog(lt, 1.1, 1.6)
+    if lt > 1.05: f += (GOLD * 0.35 + WHITE * 0.25) * max(0, fl) ** 2 * 0.6
 
 def scene_shops(f, t):
     lt = t - S_SHOPS
@@ -520,20 +548,24 @@ def scene_park(f, t):
 
 def scene_outro(f, t):
     lt = t - S_OUTRO
-    cx, cy = W / 2, H * (0.36 if PORTRAIT else 0.36)
+    cx, cy = W / 2, H * (0.30 if PORTRAIT else 0.30)
     add(f, rays_sprite(-lt * 5, 0.35 * prog(lt, 0, 1.0), GOLD * 0.6 + ROSE * 0.4), cx - 950, cy - 950)
     e = prog(lt, 0, 0.9)
-    sc = (1.6 - 0.6 * out_back(e, 1.2)) if e < 1 else 1.0
+    sc = (1.5 - 0.5 * out_back(e, 1.2)) if e < 1 else 1.0
     sc *= 1 + 0.01 * math.sin(lt * 1.8)
-    size = int(LOGO_SIZE * 0.85 * sc)
-    spr = flower_sprite(size, [1] * 5) if abs(sc - 1) > 0.002 else cache_scaled(LOGO, 0.85)
-    add(f, LOGO_GLOW, cx - LOGO_SIZE / 2 - LOGO_GLOW_PAD, cy - LOGO_SIZE / 2 - LOGO_GLOW_PAD, (0.5 + 0.2 * math.sin(lt * 2.2)) * prog(lt, 0.3, 1.0))
-    blit(f, spr, cx - size / 2, cy - size / 2, prog(lt, 0, 0.3))
-    by = cy + LOGO_SIZE * 0.85 / 2 + 40
+    base = 0.85
+    spr = cache_scaled(MARK, base) if abs(sc - 1) < 0.002 else to_sprite(MARK_IMG.resize((max(1, int(MARK_IMG.width * base * sc)), max(1, int(MARK_IMG.height * base * sc))), Image.BILINEAR))
+    add(f, MARK_GLOW, cx - MARK.shape[1] / 2 - MARK_GLOW_PAD, cy - MARK.shape[0] / 2 - MARK_GLOW_PAD, (0.5 + 0.2 * math.sin(lt * 2.2)) * prog(lt, 0.3, 1.0))
+    blit(f, spr, cx - spr.shape[1] / 2, cy - spr.shape[0] / 2, prog(lt, 0, 0.3))
+    word = cache_scaled(WORD, 0.85)
+    by = cy + MARK.shape[0] * base / 2 + (48 if PORTRAIT else 36)
+    p = out_expo(prog(lt, 0.6, 1.3))
+    center_blit(f, word, by, 1.0, p, (1 - p) * 24)
+    by += word.shape[0] + (70 if PORTRAIT else 54)
     for k, h in enumerate(T['outro_h']):
-        p = out_expo(prog(lt, 0.7 + k * 0.2, 1.4 + k * 0.2))
+        p = out_expo(prog(lt, 1.1 + k * 0.2, 1.8 + k * 0.2))
         center_blit(f, h, by, 1.0, p, (1 - p) * 28); by += h.shape[0] + 14
-    p2 = prog(lt, 1.4, 2.0)
+    p2 = prog(lt, 1.6, 2.2)
     if p2 > 0:
         ln = int(260 * out_expo(p2)); f[int(by) + 16:int(by) + 18, int(cx - ln / 2):int(cx + ln / 2)] += GOLD
         center_blit(f, T['outro_eb'], by + 36, p2, 1.0, (1 - out_cubic(p2)) * 12)

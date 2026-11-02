@@ -40,7 +40,7 @@ Příklady: `?now=2026-11-02T20:45` (zavírá za 15 min), `?now=2026-11-08T09:30
 
 ## Spořič obrazovky (video pro infopanely)
 
-`assets/intro/intro.mp4` (1920×1080) a `intro-portrait.mp4` (1080×1920) je 26s smyčka: rozkvétající logo, 127 obchodů (plující loga), food court, IMAX, parkování a tramvaje, závěrečné „Vítejte na Floře“. `screensaver.js` ji přehraje hned při otevření aplikace a znovu po 30 s nečinnosti (`IDLE_MS`); dotyk, klepnutí, klávesa nebo posun ji skryjí. Na výšku se automaticky použije svislá verze (`?video=vyska` / `?video=sirka` orientaci přibije). Pokud prohlížeč automatické přehrání zakáže, zůstane zobrazený úvodní snímek s výzvou k dotyku. Ručně lze video spustit z **Více → Spořič obrazovky → Přehrát**.
+`assets/intro/intro.mp4` (1920×1080) a `intro-portrait.mp4` (1080×1920) je 26s smyčka: originální logo OC Flora (`assets/OC Flora - Logo/logo-oc-flora.png`, znak a nápis se oddělí automaticky), 127 obchodů (plující loga), food court, IMAX, parkování a tramvaje, závěrečné „Vítejte na Floře“. `screensaver.js` ji přehraje hned při otevření aplikace a znovu po 30 s nečinnosti (`IDLE_MS`); dotyk, klepnutí, klávesa nebo posun ji skryjí. Na výšku se automaticky použije svislá verze (`?video=vyska` / `?video=sirka` orientaci přibije). Pokud prohlížeč automatické přehrání zakáže, zůstane zobrazený úvodní snímek s výzvou k dotyku. Ručně lze video spustit z **Více → Spořič obrazovky → Přehrát**.
 
 Video se generuje skriptem (Pillow + numpy + resvg-py + ffmpeg):
 
