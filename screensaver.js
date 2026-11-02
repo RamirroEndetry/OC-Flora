@@ -25,6 +25,7 @@
   function show(manual) {
     if (!saver.hidden) return;
     pickSource(); saver.hidden = false; saver.classList.toggle('is-manual', !!manual); video.currentTime = 0;
+    if (window.FloraKeyboard) window.FloraKeyboard.hide();
     video.play().catch(() => { /* autoplay zakázán: zůstane plakát s výzvou k dotyku */ });
   }
   function hide() { if (saver.hidden) return; saver.hidden = true; video.pause(); idleSince = Date.now(); }

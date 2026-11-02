@@ -475,6 +475,8 @@
       <section class="card section">
         <h2>Nastavení</h2>
         <div class="row" style="margin-top:10px;justify-content:space-between"><span class="small">Vzhled</span><div class="seg" role="group" aria-label="Vzhled">${['auto', 'light', 'dark'].map((t) => `<button type="button" data-theme="${t}" aria-pressed="${state.theme === t}">${{ auto: 'Auto', light: 'Světlý', dark: 'Tmavý' }[t]}</button>`).join('')}</div></div>
+        <div class="row" style="margin-top:12px;justify-content:space-between;flex-wrap:wrap"><span class="small">Dotyková klávesnice</span><div class="seg" role="group" aria-label="Dotyková klávesnice">${['auto', 'on', 'off'].map((m) => `<button type="button" data-kbd-mode="${m}" aria-pressed="${(window.FloraKeyboard ? window.FloraKeyboard.mode() : 'auto') === m}">${{ auto: 'Auto', on: 'Zapnuta', off: 'Vypnuta' }[m]}</button>`).join('')}</div></div>
+        <p class="tiny muted" style="margin:6px 0 0">Auto = na velkých dotykových panelech. Bez háčků a čárek – hledání je nerozlišuje.</p>
         <div class="row" style="margin-top:12px;justify-content:space-between"><span class="small">Spořič obrazovky (video pro infopanely)</span><button class="btn btn--sm btn--light" type="button" id="saverBtn">${icon('film')} Přehrát</button></div>
         <div id="installRow" class="row hidden" style="margin-top:12px;justify-content:space-between"><span class="small">Přidat aplikaci na plochu</span><button class="btn btn--sm" type="button" id="installBtn">Nainstalovat</button></div>
         ${isSim() ? `<div class="row" style="margin-top:12px;justify-content:space-between"><span class="small">Simulovaný čas: <b>${fmtClock(now())}, ${fmtDate(todayIso())}</b></span><button class="btn btn--sm btn--light" type="button" id="resetTime">Zrušit</button></div>` : ''}
@@ -586,8 +588,9 @@
 
   /* ---------- Události (delegace) ---------- */
   view.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-back],[data-set],[data-toggle],[data-fav],[data-showmap],[data-addlist],[data-dismiss],[data-endpark],[data-editpark],[data-remind],[data-theme],[data-del],[data-clear-done]');
+    const t = e.target.closest('[data-back],[data-set],[data-toggle],[data-fav],[data-showmap],[data-addlist],[data-dismiss],[data-endpark],[data-editpark],[data-remind],[data-theme],[data-del],[data-clear-done],[data-kbd-mode]');
     if (!t) return;
+    if (t.dataset.kbdMode) { window.FloraKeyboard && window.FloraKeyboard.setMode(t.dataset.kbdMode); render.keepScroll = true; render(); return; }
     if (t.hasAttribute('data-back')) { e.preventDefault(); history.length > 1 ? history.back() : (location.hash = '#/dnes'); return; }
     if (t.dataset.set !== undefined) { setQuery({ [t.dataset.set]: t.dataset.val }); render.keepScroll = true; render(); return; }
     if (t.dataset.toggle) { setQuery({ [t.dataset.toggle]: currentQuery[t.dataset.toggle] === '1' ? '' : '1' }); render.keepScroll = true; render(); return; }

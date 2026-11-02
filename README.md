@@ -34,6 +34,10 @@ Pro ověření stavů (zavírá za 15 min, neděle, svátek, parkovné) lze simu
 
 Příklady: `?now=2026-11-02T20:45` (zavírá za 15 min), `?now=2026-11-08T09:30` (neděle, otevírá v 10:00), `?now=2026-12-25T13:00` (státní svátek).
 
+## Dotyková klávesnice (infopanely)
+
+`keyboard.js` ukotví dole na obrazovce klávesnici v barvách centra (QWERTZ, číslice, bez háčků a čárek – hledání diakritiku nerozlišuje) a píše do naposledy zaměřeného textového pole: hledání obchodů, nákupní seznam, místo parkování. Shift přepne jedno písmeno na velké, **Hotovo** odešle formulář nebo pole opustí. Režim se nastavuje ve **Více → Dotyková klávesnice**: *Auto* (výchozí, zobrazí se na obrazovkách od 900 px), *Zapnuta*, *Vypnuta*; pro nastavení panelu stačí otevřít `index.html?klavesnice=on` (hodnota se uloží v zařízení). Při zapnuté klávesnici dostanou pole `inputmode="none"`, aby nevyjížděla i systémová klávesnice.
+
 ## Spořič obrazovky (video pro infopanely)
 
 `assets/intro/intro.mp4` (1920×1080) a `intro-portrait.mp4` (1080×1920) je 26s smyčka: rozkvétající logo, 127 obchodů (plující loga), food court, IMAX, parkování a tramvaje, závěrečné „Vítejte na Floře“. `screensaver.js` ji přehraje hned při otevření aplikace a znovu po 30 s nečinnosti (`IDLE_MS`); dotyk, klepnutí, klávesa nebo posun ji skryjí. Na výšku se automaticky použije svislá verze (`?video=vyska` / `?video=sirka` orientaci přibije). Pokud prohlížeč automatické přehrání zakáže, zůstane zobrazený úvodní snímek s výzvou k dotyku. Ručně lze video spustit z **Více → Spořič obrazovky → Přehrát**.
