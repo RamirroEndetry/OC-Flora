@@ -51,6 +51,10 @@ python -X utf8 scripts/render-intro.py --portrait
 
 Náhledy jednotlivých okamžiků: `python -X utf8 scripts/render-intro.py --preview 3 6.5 11.5 16 20.5 24.6 --out <složka>`. Texty, časování scén a výběr log jsou nahoře ve skriptu (`T`, `S_*`, `SHOP_IDS`, `FOOD_IDS`).
 
+## Logo a ikony
+
+Originální logo je v `assets/OC Flora - Logo/logo-oc-flora.png`. Skript `python -X utf8 scripts/make-icons.py` z něj vyrobí bílý znak a nápis pro záhlaví (`assets/logo-mark-white.png`, `assets/logo-flora-white.png`), vínovou variantu znaku a ikony aplikace (`icon.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`).
+
 ## Aktualizace dat z ocflora.cz
 
 ```bash

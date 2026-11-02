@@ -1,6 +1,6 @@
 /* Service worker: aplikace funguje i bez signálu v garážích. Shell se předcachuje, loga a obrázky za běhu. */
-const VERSION = 'flora-v5';
-const SHELL = ['./', './index.html', './style.css', './app.js', './keyboard.js', './screensaver.js', './data.js', './manifest.webmanifest', './assets/icon.svg'];
+const VERSION = 'flora-v6';
+const SHELL = ['./', './index.html', './style.css', './app.js', './keyboard.js', './screensaver.js', './data.js', './manifest.webmanifest', './assets/icon.svg', './assets/logo-mark-white.png', './assets/logo-flora-white.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
