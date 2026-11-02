@@ -1,5 +1,5 @@
 /* Service worker: aplikace funguje i bez signálu v garážích. Shell se předcachuje, loga a obrázky za běhu. */
-const VERSION = 'flora-v4';
+const VERSION = 'flora-v5';
 const SHELL = ['./', './index.html', './style.css', './app.js', './keyboard.js', './screensaver.js', './data.js', './manifest.webmanifest', './assets/icon.svg'];
 
 self.addEventListener('install', (e) => {

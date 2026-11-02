@@ -35,6 +35,8 @@
     if (visible) { const t = document.getElementById('kbdTarget'); if (t) t.textContent = label(target); }
   }
   function redraw() { if (!dock.hidden) { dock.innerHTML = markup(); update(); } }
+  /* Prázdné pole začíná velkým písmenem, pak se píše malými. */
+  function autoShift(input) { const want = !input.value.length; if (want !== shift) { shift = want; redraw(); } }
 
   function press(key) {
     if (key === 'close') { target = null; update(); return; }
@@ -54,6 +56,7 @@
     else { const ch = /[A-Z]/.test(key) && !shift && lower ? key.toLowerCase() : key; v = v.slice(0, start) + ch + v.slice(end); caret = start + ch.length; if (shift) { shift = false; redraw(); } }
     input.value = v;
     try { input.setSelectionRange(caret, caret); } catch { /* search inputs */ }
+    autoShift(input);
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.focus({ preventScroll: true });
   }
@@ -62,7 +65,7 @@
   dock.addEventListener('click', (e) => { const k = e.target.closest('[data-key]'); if (k) press(k.dataset.key); });
   document.addEventListener('focusin', (e) => {
     if (!typeable(e.target)) return;
-    target = e.target; update();
+    target = e.target; shift = !target.value.length; update();
     if (!dock.hidden) setTimeout(() => target && target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
   });
   // Po překreslení obrazovky zmizí i pole – skrýt klávesnici.
@@ -76,7 +79,7 @@
   window.FloraKeyboard = {
     mode: () => mode,
     setMode(m) { mode = m; try { localStorage.setItem(KEY, m); } catch { /* ignore */ } applyInputMode(); update(); },
-    show(el) { if (typeable(el)) { target = el; el.focus({ preventScroll: true }); update(); } },
+    show(el) { if (typeable(el)) { target = el; shift = !el.value.length; el.focus({ preventScroll: true }); update(); } },
     hide() { target = null; update(); },
   };
 })();
